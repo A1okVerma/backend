@@ -7,8 +7,9 @@ dotenv.config({
     path: './.env'
 })
 
-// connectPGDB()
 
+
+// connectPGDB()
 connectDB()
  
 

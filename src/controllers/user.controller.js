@@ -1,4 +1,3 @@
-import { request } from "express";
 import {asyncHandler} from "../util/asyncHandler.js";
 import {ApiError} from "../util/ApiError.js"
 import {User} from "../models/user.model.js"
@@ -20,8 +19,7 @@ const registerUser = asyncHandler( async (req,res,) => {
 
         // STEP 1
         const {fullName,email,username,password}= req.body
-        console.log("email:",email);
-        console.log("password:",password);
+        
 
 
         // if(fullName === ""){
@@ -44,7 +42,7 @@ const registerUser = asyncHandler( async (req,res,) => {
 
 
         // if user already existed checking || STEP 3
-        const existedUser = User.findOne({
+        const existedUser = await User.findOne({
             $or: [{username},{email}]
         })
         if(existedUser){
@@ -53,7 +51,17 @@ const registerUser = asyncHandler( async (req,res,) => {
 
         // STEP 4
         const avatarLocalPath = req.files?.avatar[0]?.path;
-        const coverImageLocalPath = req.files?.coverImage[0]?.path;
+        // let avatarLocalPath;
+        // if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        //     avatarLocalPath = req.files.avatar[0].path
+        // }
+        
+        // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+        let coverImageLocalPath;
+        if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+            coverImageLocalPath = req.files.coverImage[0].path
+        }
+        
 
         if (!avatarLocalPath) {
             throw new ApiError(400,"Avatar file is required")
@@ -61,6 +69,8 @@ const registerUser = asyncHandler( async (req,res,) => {
         // STEP 5
         const avatar = await uploadOnCloudinary(avatarLocalPath)
         const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+        
+
         if (!avatar) {
             throw new ApiError(400,"Avatar file is required");
         }
